@@ -1,21 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
-
-bool ispal(char * s, int first, int last) {
-    
-    while(first < last) {
-        if(s[first] != s[last]) { return false; }
-        first++;
-        last--;
-    }
-    return true;
-}
-
-uint min(uint a, uint b) {
-    return a<b?a:b;
-}
+#include <memory.h>
+#define min(a, b) a<b?a:b
 
 void printmatrix(uint ** m, uint len) {
   for(uint i = 0; i < len; i++) {
@@ -35,24 +22,27 @@ int mincut(char* s) {
     last = len - 1;
     if(len <= 1) { return 0; }
     uint ** m = malloc (sizeof(uint *)*len);
+    bool ** p = malloc (sizeof(bool *)*len);
+
     for(uint i = 0; i < len; i++) {
-        m[i] = malloc (sizeof(uint *)*len);
-        for(uint j = 0; j < len; j++) { m[i][j] = len; }
+        m[i] = malloc (sizeof(uint)*len);
+        p[i] = malloc (sizeof(bool)*len);
         m[i][i] = 0;
-        
+        p[i][i] = true;
     }
         
     for (uint i = 1; i < len; i++) {
         for(uint j = 0;j < len-i; j++) {
-            if(ispal(s,j,j+i)) { m[j][j+i] = 0; }
-            else {
+          if(i == 1) { p[j][j+i] = s[j] == s[j+i]; }
+          else { p[j][j+i] = (s[j] == s[j+i]) && p[j+1][j+i-1]; }
+          if(p[j][j+i]) { m[j][j+i] = 0; }
+          else {
                 uint cuts = len;
                 for(uint k = 0; k < i; k++) {
                     cuts = min(cuts,1+m[j][j+k]+m[j+k+1][j+i]);
                 }
                 m[j][j+i] = cuts;
-            }
-            
+          }            
         }
     }
     return m[0][last];
@@ -73,6 +63,7 @@ void main() {
   TEST("a",0);
   TEST("",0);
   TEST("abcdefghijklmnopqrstuvwxyz",25);
-  
+  TEST("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+,1);
 
 }
