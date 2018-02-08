@@ -15,44 +15,46 @@ void printmatrix(uint ** m, uint len) {
 
 int mincut(char* s) {
 
-    uint first = 0;
-    uint last = 0;
-    uint len = 0;
-    for(; s[len] != '\0'; len++) {}
-    last = len - 1;
-    if(len <= 1) { return 0; }
-    uint ** m = malloc (sizeof(uint *)*len);
-    bool ** p = malloc (sizeof(bool *)*len);
+  uint first = 0;
+  uint last = 0;
+  uint len = 0;
+  for(; s[len] != '\0'; len++) {}
+  last = len - 1;
+  if(len <= 1) { return 0; }
+  uint * c = malloc (sizeof(uint)*len);
 
-    for(uint i = 0; i < len; i++) {
-        m[i] = malloc (sizeof(uint)*len);
-        p[i] = malloc (sizeof(bool)*len);
-        m[i][i] = 0;
-        p[i][i] = true;
+  bool ** p = malloc (sizeof(bool *)*len);
+
+  for(uint i = 0; i < len; i++) {
+    p[i] = malloc (sizeof(bool)*len);
+    memset(p[i],false,sizeof(bool)*len);
+    p[i][i] = true;
+    c[i] = len-1;
+  }
+
+  for (uint i = 1; i < len; i++) {
+    for(uint j = 0;j < len-i; j++) {
+      if(i == 1) { p[j][j+i] = s[j] == s[j+i]; }
+      else { p[j][j+i] = (s[j] == s[j+i]) && p[j+1][j+i-1]; }
     }
-        
-    for (uint i = 1; i < len; i++) {
-        for(uint j = 0;j < len-i; j++) {
-          if(i == 1) { p[j][j+i] = s[j] == s[j+i]; }
-          else { p[j][j+i] = (s[j] == s[j+i]) && p[j+1][j+i-1]; }
-          if(p[j][j+i]) { m[j][j+i] = 0; }
-          else {
-                uint cuts = len;
-                for(uint k = 0; k < i; k++) {
-                    cuts = min(cuts,1+m[j][j+k]+m[j+k+1][j+i]);
-                }
-                m[j][j+i] = cuts;
-          }            
-        }
+  }
+    
+  for (uint i = 1; i < len; i++) {
+    if(p[0][i]) { c[i] = 0; }
+    else {
+      for(uint j = 0; j < i; j++) {
+        c[i] = min(c[i],c[j]+1);
+      }
     }
-    return m[0][last];
+  }
+  return c[last];
 }
 
-#define TEST(a,b) \
-  {\
-  uint cuts = mincut(a);\
-  if(cuts == b) { printf("%s: pass.\n",a); }\
-  else { printf("%s: fail (expected %i got %i).\n",a,b,cuts); } \
+#define TEST(a,b)                                                 \
+  {                                                               \
+    uint cuts = mincut(a);                                        \
+    if(cuts == b) { printf("%s: pass.\n",a); }                    \
+    else { printf("%s: fail (expected %i got %i).\n",a,b,cuts); } \
   }
 
 void main() {
@@ -64,6 +66,6 @@ void main() {
   TEST("",0);
   TEST("abcdefghijklmnopqrstuvwxyz",25);
   TEST("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-,1);
+       ,1);
 
 }
