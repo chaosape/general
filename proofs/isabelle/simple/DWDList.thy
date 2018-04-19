@@ -5,7 +5,7 @@ datatype 'a list =
   Nil
   | Cons 'a "'a list"
 
-(* Isabelle generate the following induction theorem for this datatype:
+(* Isabelle generates the following inductive theorem for this datatype:
    ?P DWDList.list.Nil \<Longrightarrow> (\<And>x1 x2. ?P x2 \<Longrightarrow> ?P (DWDList.list.Cons x1 x2)) \<Longrightarrow> ?P ?list
 *)
 
